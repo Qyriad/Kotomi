@@ -5,7 +5,7 @@
 # https://github.com/916253/Kurisu
 
 description = """
-Robocop, the moderation bot of ReSwitched.
+Homura, the moderation bot of Room of Requirement.
 """
 
 # import dependencies
@@ -19,7 +19,6 @@ import configparser
 import traceback
 import sys
 import os
-import re
 
 # sets working directory to bot's folder
 dir_path = os.path.dirname(os.path.realpath(__file__))
@@ -116,45 +115,18 @@ async def on_ready():
         bot.config = config
 
         # channels
-        bot.welcome_channel = discord.utils.get(server.channels, name="welcome-and-rules")
-        bot.announcements_channel = discord.utils.get(server.channels, name="news")
-        bot.helpers_channel = discord.utils.get(server.channels, name="general")
         bot.mods_channel = discord.utils.get(server.channels, name="server-logs")
         bot.modlogs_channel = discord.utils.get(server.channels, name="server-logs")
         bot.serverlogs_channel = discord.utils.get(server.channels, name="server-logs")
         bot.messagelogs_channel = discord.utils.get(server.channels, name="server-logs")
+        bot.welcome_channel = discord.utils.get(server.channels, name="welcome-rules")
 
         # TODO: remove some of these roles that are useless on Reswitched. need to find their use around the bot first.
         # roles
-        bot.staff_role = discord.utils.get(server.roles, name="mod")
-        bot.halfop_role = discord.utils.get(server.roles, name="HalfOP")
-        bot.op_role = discord.utils.get(server.roles, name="OP")
-        bot.superop_role = discord.utils.get(server.roles, name="moderator")
-        bot.owner_role = discord.utils.get(server.roles, name="wizards")
-        bot.helpers_role = discord.utils.get(server.roles, name="Helpers")
-        bot.onduty3ds_role = discord.utils.get(server.roles, name="On-Duty 3DS")
-        bot.ondutywiiu_role = discord.utils.get(server.roles, name="On-Duty Wii U")
+        bot.staff_role = discord.utils.get(server.roles, name="Staff")
         bot.verified_role = discord.utils.get(server.roles, name="Verified")
-        bot.trusted_role = discord.utils.get(server.roles, name="Trusted")
-        bot.probation_role = discord.utils.get(server.roles, name="Probation")
         bot.muted_role = discord.utils.get(server.roles, name="Muted")
-        bot.nomemes_role = discord.utils.get(server.roles, name="No-Memes")
-        bot.nohelp_role = discord.utils.get(server.roles, name="hackers")
-        bot.noembed_role = discord.utils.get(server.roles, name="No-Embed")
-        bot.elsewhere_role = discord.utils.get(server.roles, name="#elsewhere")
         bot.everyone_role = server.default_role
-
-        bot.staff_ranks = {
-            "HalfOP": bot.halfop_role,
-            "OP": bot.op_role,
-            "moderator": bot.superop_role,
-            "Wizards": bot.owner_role,
-        }
-
-        bot.helper_roles = {
-            "3DS": bot.onduty3ds_role,
-            "WiiU": bot.ondutywiiu_role,
-        }
 
         # load timebans
         with open("data/timebans.json", "r") as f:
@@ -189,19 +161,12 @@ async def on_ready():
 # loads extensions
 addons = [
     'addons.blah',
-    'addons.events',
     'addons.extras',
     'addons.kickban',
     'addons.load',
     'addons.lockdown',
     'addons.logs',
-    'addons.loop',
     'addons.mod',
-    'addons.links',
-    'addons.err',
-    'addons.auto_probation',
-    'addons.nxerr',
-    'addons.things',
     'addons.mod_warn',
 ]
 

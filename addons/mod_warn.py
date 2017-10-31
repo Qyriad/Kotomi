@@ -2,7 +2,6 @@ import discord
 import json
 import time
 from discord.ext import commands
-from sys import argv
 
 class ModWarn:
     """
@@ -43,22 +42,20 @@ class ModWarn:
             msg += " The given reason is: " + reason
         msg += "\n\nPlease read the rules in the #news pins. This is warn #{}.".format(len(warns[member.id]["warns"]))
         warn_count = len(warns[member.id]["warns"])
-        if warn_count == 2:
+        if warn_count == 1:
             msg += " __The next warn will automatically kick.__"
+        if warn_count == 2:
+            msg += "\n\nYou were kicked because of this warning. You can join again right away. One more warning will result in an automatic ban."
         if warn_count == 3:
-            msg += "\n\nYou were kicked because of this warning. You can join again right away. Two more warnings will result in an automatic ban."
-        if warn_count == 4:
-            msg += "\n\nYou were kicked because of this warning. This is your final warning. You can join again, but **one more warn will result in a ban**."
-        if warn_count == 5:
             msg += "\n\nYou were automatically banned due to five warnings."
         try:
             await self.bot.send_message(member, msg)
         except discord.errors.Forbidden:
             pass  # don't fail in case user has DMs disabled for this server, or blocked the bot
-        if warn_count == 3 or warn_count == 4:
+        if warn_count == 2:
             self.bot.actions.append("wk:"+member.id)
             await self.bot.kick(member)
-        if warn_count >= 5:  # just in case
+        if warn_count >= 3:  # just in case
             self.bot.actions.append("wb:"+member.id)
             await self.bot.ban(member)
         await self.bot.say("{} warned. User has {} warning(s)".format(member.mention, len(warns[member.id]["warns"])))

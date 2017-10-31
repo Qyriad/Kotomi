@@ -1,10 +1,6 @@
 import discord
 import json
-import re
 from discord.ext import commands
-from subprocess import call
-from sys import argv
-import time
 
 class Mod:
     """
@@ -51,7 +47,6 @@ class Mod:
             role = "@ everyone"
         await self.bot.say("name = {}\nid = {}\ndiscriminator = {}\navatar = {}\nbot = {}\navatar_url = {}\ndefault_avatar = {}\ndefault_avatar_url = <{}>\ncreated_at = {}\ndisplay_name = {}\njoined_at = {}\nstatus = {}\ngame = {}\ncolour = {}\ntop_role = {}\n".format(u.name, u.id, u.discriminator, u.avatar, u.bot, u.avatar_url, u.default_avatar, u.default_avatar_url, u.created_at, u.display_name, u.joined_at, u.status, u.game, u.colour, role))
 
-
     @commands.has_permissions(ban_members=True)
     @commands.command(pass_context=True, name="clear")
     async def purge(self, ctx, limit: int):
@@ -72,12 +67,7 @@ class Mod:
            msg = "🗑 **Reset**: {} cleared {} messages in {}".format(ctx.message.author.mention, limit, ctx.message.channel.mention)
            await self.bot.send_message(self.bot.modlogs_channel, msg)
 
-           index = time.localtime().tm_hour % 12
-           phrase = self.bot.config['Probate']['Phrases'].split(',')[index].strip()
-
-           await self.bot.say("<:ReSwitched:326421448543567872> __**Welcome to ReSwitched!**__\n ​ \nBe sure you read the following rules and information before participating:\n ​ \n​:bookmark_tabs:__Rules:__ \n**1**. Read all the rules before participating in chat. Not reading the rules is *not* an excuse for breaking them.\n • It's suggested that you read channel topics and pins before asking questions as well, as some questions may have already been answered in those. \n ​ \n**2**. Be nice to each other. It's fine to disagree, it's not fine to insult or attack other people. \n • You may disagree with anyone or anything you like, but you should try to keep it to opinions, and not people. Avoid vitriol. \n • Constant antagonistic behavior is considered uncivil and appropriate action will be taken. \n ​• The use of derogatory slurs -- sexist, racist, homophobic, or otherwise -- is unacceptable and may be grounds for an immediate ban.\n \n**3**. If you have concerns about another user, please take up your concerns with a staff member (myself or someone with the \"moderator\" role in the sidebar) in private. Don't publicly call other users out. \n ​ \n**4**. Don't spam. \n • For excessively long text, use a service like https://0bin.net/. \n ​• When you are asking us to give you access to the other channels, please include \"{}\" in your message. Failure to do so may result in being kicked out. \n ​ \n**5**. Don't brigade, raid, or otherwise attack other people or communities. Don't discuss participation in these attacks. This may warrant an immediate permanent ban. \n ​ \n**6**. Off-topic content goes to #off-topic. Keep low-quality content like memes out. \n ​ \n**7**. Trying to evade, look for loopholes, or stay borderline within the rules will be treated as breaking them. \n ​ \n​**8**. Absolutely no piracy. There is a zero-tolerance policy and we will enforce this strictly and swiftly. \n ​ \n".format(phrase))
-           await self.bot.say(":hash: __Channel Breakdown:__ \n#news - Used exclusively for updates on ReSwitched progress and community information. Most major announcements are passed through this channel and whenever something is posted there it's usually something you'll want to look at.\n ​ \n#general -  All things switch-hacking related. We try to keep this channel on-topic in that respect as much as possible, though it does drift a bit. If you have any questions about the state of switch hacking, how to get set up, etc, #general is the place to ask.\n ​ \n#off-topic - Channel for discussion of anything that doesn't belong in #general. Anything goes, so long as you make sure to follow the rules and be on your best behavior.\n \n#hack-n-all - Hacking discussion for things other than the switch that don't fit in the scope of #general, but need more structured discussion than #off-topic may be able to provide.")
-           await self.bot.say("**When you have read everything, send a message in this channel to ask us to give you access to the other channels. Have a nice day!**")
+           await self.bot.say("Post here to let us know you're here so we can grant you access to the server. Read the rules in {} first!".format(self.bot.welcome_channel.mention))
        except discord.errors.Forbidden:
            await self.bot.say("💢 I don't have permission to do this.")
 
@@ -86,7 +76,14 @@ class Mod:
     async def mute(self, ctx, user, *, reason=""):
         """Mutes a user so they can't speak. Staff only."""
         try:
-            member = ctx.message.mentions[0]
+            try:
+                member = ctx.message.mentions[0]
+            except IndexError:
+                await self.bot.say("Please mention a user.")
+                return
+            if self.bot.staff_role in member.roles:
+                await self.bot.say("You can't mute another staffer with this command!")
+                return
             await self.add_restriction(member, "Muted")
             await self.bot.add_roles(member, self.bot.muted_role)
             msg_user = "You were muted!"
@@ -111,7 +108,11 @@ class Mod:
     async def unmute(self, ctx, user):
         """Unmutes a user so they can speak. Staff only."""
         try:
-            member = ctx.message.mentions[0]
+            try:
+                member = ctx.message.mentions[0]
+            except IndexError:
+                await self.bot.say("Please mention a user.")
+                return
             await self.remove_restriction(member, "Muted")
             await self.bot.remove_roles(member, self.bot.muted_role)
             await self.bot.say("{} can now speak again.".format(member.mention))
@@ -120,79 +121,51 @@ class Mod:
         except discord.errors.Forbidden:
             await self.bot.say("💢 I don't have permission to do this.")
 
-
-    @commands.command(pass_context=True, name="secure")
-    async def secure(self, ctx, user, *, reason=""):
-        """Give access to the hacker role"""
-        author = ctx.message.author
-        if (self.bot.owner_role not in author.roles):
-            msg = "{} You cannot used this command.".format(author.mention)
-            await self.bot.say(msg)
-            return
-        try:
-            member = ctx.message.mentions[0]
-            await self.bot.add_roles(member, self.bot.nohelp_role)
-            msg = "⭕️ **Secure channel access**: {} gave access to secure channels to {} | {}#{}".format(ctx.message.author.mention, member.mention, self.bot.escape_name(member.name), self.bot.escape_name(member.discriminator))
-            await self.bot.send_message(self.bot.modlogs_channel, msg)
-        except discord.errors.Forbidden:
-            await self.bot.say("💢 I don't have permission to do this.")
-
-    @commands.command(pass_context=True, name="insecure")
-    async def insecure(self, ctx, user):
-        """take away the probation role"""
-        author = ctx.message.author
-        if (self.bot.owner_role not in author.roles):
-            msg = "{} You cannot used this command.".format(author.mention)
-            await self.bot.say(msg)
-            return
-        try:
-            member = ctx.message.mentions[0]
-            await self.bot.remove_roles(member, self.bot.probation_role)
-            msg = "🚫 **Unprobated**: {} unprobated {} | {}#{}".format(ctx.message.author.mention, member.mention, self.bot.escape_name(member.name), self.bot.escape_name(member.discriminator))
-            await self.bot.send_message(self.bot.modlogs_channel, msg)
-        except discord.errors.Forbidden:
-            await self.bot.say("💢 I don't have permission to do this.")
-
     @commands.has_permissions(kick_members=True)
-    @commands.command(pass_context=True, name="probate")
-    async def probate(self, ctx, user, *, reason=""):
+    @commands.command(pass_context=True, name="unverify")
+    async def unverify(self, ctx, user, *, reason=""):
         """Probate a user. Staff only."""
         try:
-            member = ctx.message.mentions[0]
-            await self.add_restriction(member, "Probation")
-            await self.bot.add_roles(member, self.bot.probation_role)
-            msg_user = "You are under probation!"
+            try:
+                member = ctx.message.mentions[0]
+            except IndexError:
+                await self.bot.say("Please mention a user.")
+                return
+            if self.bot.staff_role in member.roles:
+                await self.bot.say("You can't unverify another staffer with this command!")
+                return
+            await self.remove_restriction(member, "Verified")
+            await self.bot.remove_roles(member, self.bot.verified_role)
+            msg_user = "You are no longer verified!"
             if reason != "":
                 msg_user += " The given reason is: " + reason
             try:
                 await self.bot.send_message(member, msg_user)
             except discord.errors.Forbidden:
                 pass  # don't fail in case user has DMs disabled for this server, or blocked the bot
-            await self.bot.say("{} is now in probation.".format(member.mention))
-            msg = "🚫 **Probated**: {} probated {} | {}#{}".format(ctx.message.author.mention, member.mention, self.bot.escape_name(member.name), self.bot.escape_name(member.discriminator))
+            await self.bot.say("{} is no longer verified.".format(member.mention))
+            msg = "🚫 **Un-verified**: {} un-verified {} | {}#{}".format(ctx.message.author.mention, member.mention, self.bot.escape_name(member.name), self.bot.escape_name(member.discriminator))
             if reason != "":
                 msg += "\n✏️ __Reason__: " + reason
             else:
-                msg += "\nPlease add an explanation below. In the future, it is recommended to use `.probate <user> [reason]` as the reason is automatically sent to the user."
+                msg += "\nPlease add an explanation below. In the future, it is recommended to use `.unverify <user> [reason]` as the reason is automatically sent to the user."
             await self.bot.send_message(self.bot.modlogs_channel, msg)
         except discord.errors.Forbidden:
             await self.bot.say("💢 I don't have permission to do this.")
 
     @commands.has_permissions(kick_members=True)
-    @commands.command(pass_context=True, name="unprobate")
-    async def unprobate(self, ctx, user):
+    @commands.command(pass_context=True, name="verify")
+    async def verify(self, ctx, user):
         """Unprobate a user. Staff only."""
         try:
             member = ctx.message.mentions[0]
-            await self.remove_restriction(member, "Probation")
-            await self.bot.remove_roles(member, self.bot.probation_role)
-            await self.bot.say("{} is out of probation.".format(member.mention))
-            msg = "⭕️ **Un-probated**: {} un-probated {} | {}#{}".format(ctx.message.author.mention, member.mention, self.bot.escape_name(member.name), self.bot.escape_name(member.discriminator))
+            await self.add_restriction(member, "Verified")
+            await self.bot.add_roles(member, self.bot.verified_role)
+            await self.bot.say("{} is verified.".format(member.mention))
+            msg = "⭕️ **Verified**: {} verified {} | {}#{}".format(ctx.message.author.mention, member.mention, self.bot.escape_name(member.name), self.bot.escape_name(member.discriminator))
             await self.bot.send_message(self.bot.modlogs_channel, msg)
         except discord.errors.Forbidden:
             await self.bot.say("💢 I don't have permission to do this.")
-
-
 
     @commands.has_permissions(ban_members=True)
     @commands.command(pass_context=True)

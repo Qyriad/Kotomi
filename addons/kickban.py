@@ -1,10 +1,5 @@
-import datetime
 import discord
-import json
-import re
-import time
 from discord.ext import commands
-from sys import argv
 
 class KickBan:
     """
@@ -23,6 +18,9 @@ class KickBan:
                 member = ctx.message.mentions[0]
             except IndexError:
                 await self.bot.say("Please mention a user.")
+                return
+            if self.bot.staff_role in member.roles:
+                await self.bot.say("You can't kick another staffer with this command!")
                 return
             msg = "You were kicked from {}.".format(self.bot.server.name)
             if reason != "":
@@ -51,6 +49,9 @@ class KickBan:
             except IndexError:
                 await self.bot.say("Please mention a user.")
                 return
+            if self.bot.staff_role in member.roles:
+                await self.bot.say("You can't ban another staffer with this command!")
+                return
             msg = "You were banned from {}.".format(self.bot.server.name)
             if reason != "":
                 msg += " The given reason is: " + reason
@@ -78,6 +79,9 @@ class KickBan:
                 member = ctx.message.mentions[0]
             except IndexError:
                 await self.bot.say("Please mention a user.")
+                return
+            if self.bot.staff_role in member.roles:
+                await self.bot.say("You can't ban another staffer with this command!")
                 return
             self.bot.actions.append("ub:"+member.id)
             await self.bot.ban(member, 0)

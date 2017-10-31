@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-from sys import argv
 
 class Blah:
     """
@@ -9,11 +8,6 @@ class Blah:
     def __init__(self, bot):
         self.bot = bot
         print('Addon "{}" loaded'.format(self.__class__.__name__))
-
-    @commands.has_permissions(ban_members=True)
-    @commands.command(hidden=True, pass_context=True)
-    async def announce(self, ctx, *, inp):
-        await self.bot.send_message(self.bot.announcements_channel, inp)
 
     @commands.has_permissions(ban_members=True)
     @commands.command(hidden=True, pass_context=True)

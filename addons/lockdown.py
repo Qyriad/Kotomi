@@ -1,7 +1,6 @@
 #Importing libraries
 import discord
 from discord.ext import commands
-from sys import argv
 
 class Lockdown:
     """
@@ -27,8 +26,6 @@ class Lockdown:
             await self.bot.send_message(self.bot.modlogs_channel, msg)
        except discord.errors.Forbidden:
             await self.bot.say("💢 I don't have permission to do this.")
-
-
 
     @commands.has_permissions(manage_messages=True)
     @commands.command(pass_context=True, name="softlock")
