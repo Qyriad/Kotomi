@@ -63,7 +63,7 @@ if not os.path.isfile("data/timebans.json"):
         f.write("{}")
 
 
-prefix = ['!', '.']
+prefix = ['!']
 bot = commands.Bot(command_prefix=prefix, description=description, pm_help=None)
 
 bot.actions = []  # changes messages in mod-/server-logs
@@ -119,14 +119,32 @@ async def on_ready():
         bot.modlogs_channel = discord.utils.get(server.channels, name="server-logs")
         bot.serverlogs_channel = discord.utils.get(server.channels, name="server-logs")
         bot.messagelogs_channel = discord.utils.get(server.channels, name="server-logs")
-        bot.welcome_channel = discord.utils.get(server.channels, name="welcome-rules")
+        bot.welcome_channel = discord.utils.get(server.channels, name="entry-gate")
 
         # TODO: remove some of these roles that are useless on Reswitched. need to find their use around the bot first.
         # roles
-        bot.staff_role = discord.utils.get(server.roles, name="Staff")
-        bot.verified_role = discord.utils.get(server.roles, name="Verified")
+        bot.staff_role = discord.utils.get(server.roles, name="Mod")
+        bot.verified_role = discord.utils.get(server.roles, name="vetted")
         bot.muted_role = discord.utils.get(server.roles, name="Muted")
         bot.everyone_role = server.default_role
+
+        bot.she_her_role = discord.utils.get(server.roles, name="she/her")
+        bot.they_them_role = discord.utils.get(server.roles, name="they/them")
+        bot.he_him_role = discord.utils.get(server.roles, name="he/him")
+        bot.girl_role = discord.utils.get(server.roles, name="girl")
+        bot.boy_role = discord.utils.get(server.roles, name="boy")
+        bot.non_binary_role = discord.utils.get(server.roles, name="non-binary")
+        bot.straight_role = discord.utils.get(server.roles, name="straight")
+        bot.gay_role = discord.utils.get(server.roles, name="gay")
+        bot.bi_pan_role = discord.utils.get(server.roles, name="bi/pan")
+        bot.ace_role = discord.utils.get(server.roles, name="ace")
+        bot.aro_role = discord.utils.get(server.roles, name="aro")
+        bot.cis_role = discord.utils.get(server.roles, name="cis")
+        bot.trans_role = discord.utils.get(server.roles, name="trans")
+
+        bot.extra_roles = [bot.she_her_role, bot.they_them_role, bot.he_him_role, bot.girl_role, bot.boy_role, bot.non_binary_role, bot.straight_role, bot.gay_role, bot.bi_pan_role, bot.ace_role, bot.aro_role, bot.cis_role, bot.trans_role]
+
+        bot.nsfw_role = discord.utils.get(server.roles, name="bad dragon")
 
         # load timebans
         with open("data/timebans.json", "r") as f:

@@ -9,7 +9,7 @@ class KickBan:
         self.bot = bot
         print('Addon "{}" loaded'.format(self.__class__.__name__))
 
-    @commands.has_permissions(manage_nicknames=True)
+    @commands.has_permissions(kick_members=True)
     @commands.command(pass_context=True, name="kick")
     async def kick_member(self, ctx, user, *, reason=""):
         """Kicks a user from the server. Staff only."""

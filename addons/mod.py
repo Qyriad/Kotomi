@@ -202,6 +202,17 @@ class Mod:
             await self.bot.edit_profile(username=('{}'.format(username)))
         except discord.errors.Forbidden:
             await self.bot.say("💢 I don't have permission to do this.")
+    
+    @commands.has_permissions(ban_members=True)
+    @commands.command(pass_context=True)
+    async def addnsfw(self, ctx, user):
+        try:
+            member = ctx.message.mentions[0]
+        except IndexError:
+            await self.bot.say("Please mention a user")
+            return
+        await self.bot.add_roles(member, self.bot.nsfw_role)
+
 
 def setup(bot):
     bot.add_cog(Mod(bot))
